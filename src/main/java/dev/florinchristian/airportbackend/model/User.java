@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -23,12 +25,16 @@ public class User {
     @Column(name = "hashedPassword")
     private String hashedPassword;
 
-    @Column(name = "role")
-    private String role;
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
+    private Set<Role> roles;
 
-    public User(String email, String hashedPassword, String role) {
+    public User(String email, String hashedPassword) {
         this.email = email;
         this.hashedPassword = hashedPassword;
-        this.role = role;
     }
 }

@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import dev.florinchristian.airportbackend.model.Airport;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/airports")
 public class AirportController {
 
@@ -18,17 +21,15 @@ public class AirportController {
     private AirportRepository airportRepository;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Airport> getAirports() {
-        return airportRepository.findAll();
-    }
+    public Set<Airport> getAirports(@RequestParam(required = false) String searchTerm) {
+        if (searchTerm == null || searchTerm.isEmpty())
+            return new HashSet<>(airportRepository.findAll());
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public List<Airport> searchForAirports(@RequestParam @NonNull String searchTerm) {
-        List<Airport> result = new ArrayList<>();
+        Set<Airport> result = new HashSet<>();
 
         result.addAll(airportRepository.findByNameContains(searchTerm));
-        result.addAll(airportRepository.findByCountyContains(searchTerm));
         result.addAll(airportRepository.findByCountryContains(searchTerm));
+        result.addAll(airportRepository.findByCountyContains(searchTerm));
 
         return result;
     }

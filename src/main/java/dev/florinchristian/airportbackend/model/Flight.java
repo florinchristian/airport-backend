@@ -17,6 +17,9 @@ public class Flight {
     private Integer id;
 
     @ManyToOne
+    private Airplane airplane;
+
+    @ManyToOne
     private Airport fromAirport;
 
 

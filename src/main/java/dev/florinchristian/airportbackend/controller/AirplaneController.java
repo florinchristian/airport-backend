@@ -16,11 +16,11 @@ public class AirplaneController {
     @Autowired
     private AirplaneRepository airplaneRepository;
 
+    // TODO pls return only planes that can take given flight time
     @RequestMapping(method = RequestMethod.GET)
     public List<Airplane> getAirplanes() {
         return airplaneRepository.findAll();
     }
-
 
     @RequestMapping(method = RequestMethod.POST)
     public Airplane insertAirplane(@RequestBody @NonNull Airplane airplane) {

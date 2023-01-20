@@ -1,15 +1,17 @@
 package dev.florinchristian.airportbackend.controller;
 
-import dev.florinchristian.airportbackend.model.Airport;
 import dev.florinchristian.airportbackend.model.Flight;
+import dev.florinchristian.airportbackend.model.Ticket;
 import dev.florinchristian.airportbackend.repository.FlightRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -19,8 +21,6 @@ public class FlightController {
     @Autowired
     private FlightRepository flightRepository;
 
-
-    // TODO implement flights get
     @RequestMapping(method = RequestMethod.GET)
     public List<Flight> getFlights(
             @RequestParam(name = "fromAirport") @NonNull Integer fromAirport,
@@ -30,16 +30,42 @@ public class FlightController {
 
             @RequestParam(name = "returnDate", required = false) @NonNull String returnDate
     ) {
-        Flight wanted = new Flight(
-                new Airport(fromAirport),
-                new Airport(toAirport),
-                LocalDateTime.parse(departureDate)
-        );
+        return flightRepository
+                .getAvailableFlights(
+                        fromAirport,
+                        toAirport,
+                        departureDate,
+                        numberOfSeats
+                );
+    }
 
-        if (returnDate != null && !returnDate.isEmpty())
-            wanted.setEndTime(LocalDateTime.parse(returnDate));
 
-        return flightRepository.findAll(Example.of(wanted));
+    @RequestMapping(value = "/busySeats", method = RequestMethod.GET)
+    public Map<Object, Object> getBusySeats(@RequestParam(name = "flightId") Integer flightId) {
+        Map<Object, Object> result = new HashMap<>();
+
+        Flight flight = flightRepository.findById(flightId).orElse(null);
+
+        if (flight == null)
+            return result;
+
+        result.putIfAbsent("height", flight.getAirplane().getRowNumber());
+        result.putIfAbsent("width", flight.getAirplane().getColumnNumber());
+
+        Map<Object, Object> busySeats = new HashMap<>();
+
+        List<Ticket> tickets = flight.getTickets();
+
+        for (Ticket ticket: tickets)
+            busySeats.putIfAbsent(ticket.getSelectedRow(), new HashMap<>() {
+                {
+                    putIfAbsent(ticket.getSelectedColumn(), true);
+                }
+            });
+
+        result.putIfAbsent("busySeats", busySeats);
+
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.POST)

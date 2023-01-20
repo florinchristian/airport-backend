@@ -1,14 +1,15 @@
 package dev.florinchristian.airportbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "flights")
@@ -23,14 +24,17 @@ public class Flight {
 
     @ManyToOne
     @JoinColumn(name = "airplane_id", nullable = false)
+    @JsonIgnore
     private Airplane airplane;
 
     @ManyToOne
     @JoinColumn(name = "from_airport_id", nullable = false)
+    @JsonIgnore
     private Airport fromAirport;
 
     @ManyToOne
     @JoinColumn(name = "to_airport_id", nullable = false)
+    @JsonIgnore
     private Airport toAirport;
 
     @Column(name = "start_time")
@@ -42,23 +46,14 @@ public class Flight {
     @Column(name = "price")
     private Integer price;
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj)
-//            return true;
-//
-//        if (!(obj instanceof Flight))
-//            return false;
-//
-//        Flight flight = (Flight) obj;
-//
-//        LocalDate startDate1 = LocalDate.from(startTime);
-//        LocalDate startDate2 = LocalDate.from(flight.getStartTime());
-//    }
+    @Column(name = "seats_left")
+    private Integer seatsLeft;
 
-    public Flight(Airport fromAirport, Airport toAirport, LocalDateTime startTime) {
-        this.fromAirport = fromAirport;
-        this.toAirport = toAirport;
-        this.startTime = startTime;
-    }
+    @JsonIgnore
+    @OneToMany(
+            mappedBy = "flight",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Ticket> tickets;
 }

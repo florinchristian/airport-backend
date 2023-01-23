@@ -16,7 +16,14 @@ public class AirplaneController {
     @Autowired
     private AirplaneRepository airplaneRepository;
 
-    // TODO pls return only planes that can take given flight time
+    @RequestMapping(value = "/availableBetween", method = RequestMethod.GET)
+    public List<Airplane> getAvailableAirplanes(
+            @RequestParam(name = "startDate") @NonNull String startDate,
+            @RequestParam(name = "endDate") @NonNull String endDate
+    ) {
+        return airplaneRepository.findAvailableAirplanesBetween(startDate, endDate);
+    }
+
     @RequestMapping(method = RequestMethod.GET)
     public List<Airplane> getAirplanes() {
         return airplaneRepository.findAll();

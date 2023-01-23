@@ -1,9 +1,6 @@
 package dev.florinchristian.airportbackend.controller;
 
-import dev.florinchristian.airportbackend.model.Flight;
-import dev.florinchristian.airportbackend.model.Ticket;
-import dev.florinchristian.airportbackend.model.TicketRequest;
-import dev.florinchristian.airportbackend.model.User;
+import dev.florinchristian.airportbackend.model.*;
 import dev.florinchristian.airportbackend.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -63,22 +60,19 @@ public class FlightController {
 
         Flight flight = flightRepository.findById(flightId).orElse(null);
 
-        if (flight == null)
+        if (flight == null) {
             return result;
+        }
 
         result.putIfAbsent("flightId", flightId);
         result.putIfAbsent("height", flight.getAirplane().getRowNumber());
         result.putIfAbsent("width", flight.getAirplane().getColumnNumber());
 
-        Map<Object, List<Integer>> busySeats = new HashMap<>();
+        List<Seat> busySeats = new ArrayList<>();
 
         List<Ticket> tickets = flight.getTickets();
 
-        for (Ticket ticket: tickets) {
-            busySeats.putIfAbsent(ticket.getSelectedRow(), new ArrayList<>());
-            busySeats.get(ticket.getSelectedRow())
-                    .add(ticket.getSelectedColumn());
-        }
+        tickets.forEach(ticket -> busySeats.add(new Seat(ticket.getSelectedRow(), ticket.getSelectedColumn())));
 
         result.putIfAbsent("busySeats", busySeats);
 
@@ -89,29 +83,24 @@ public class FlightController {
     public Flight insertFlight(@RequestBody @NonNull TicketRequest ticketRequest) {
         Flight flight = flightRepository.findById(ticketRequest.getFlightId()).orElse(null);
 
-        if (flight == null)
+        if (flight == null) {
             return null;
+        }
 
-        Map<Integer, Map<Integer, Boolean>> selectedSeats = ticketRequest.getSelectedSeats();
+        List<Seat> selectedSeats = ticketRequest.getSelectedSeats();
 
         List<Ticket> tickets = flight.getTickets();
 
-        int count = 0;
+        selectedSeats.forEach(seat ->
+            tickets.add(new Ticket(
+                    new User(ticketRequest.getUserId()),
+                    new Flight(ticketRequest.getFlightId()),
+                    seat.getRow(),
+                    seat.getColumn()
+            ))
+        );
 
-        for (Integer row: selectedSeats.keySet())
-            for (Integer column: selectedSeats.get(row).keySet())
-                if (selectedSeats.get(row).get(column)) {
-                    tickets.add(new Ticket(
-                            new User(ticketRequest.getUserId()),
-                            new Flight(ticketRequest.getFlightId()),
-                            row,
-                            column
-                    ));
-
-                    count++;
-                }
-
-        flight.setSeatsLeft(flight.getSeatsLeft() - count);
+        flight.setSeatsLeft(flight.getSeatsLeft() - selectedSeats.size());
 
         return flightRepository.saveAndFlush(flight);
     }

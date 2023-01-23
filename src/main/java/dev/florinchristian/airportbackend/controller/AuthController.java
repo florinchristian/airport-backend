@@ -34,11 +34,13 @@ public class AuthController {
     public ResponseEntity<?> checkCredentials(@RequestParam(name = "email") @NonNull String email, @RequestParam @NonNull String password) throws NoSuchAlgorithmException {
         User user = userRepository.findByEmail(email).orElse(null);
 
-        if (user == null)
+        if (user == null) {
             throw new UserNotFoundException();
+        }
 
-        if (!user.getHashedPassword().equals(Auth.getMD5Hash(password)))
+        if (!user.getHashedPassword().equals(Auth.getMD5Hash(password))) {
             throw new WrongCredentialsException();
+        }
 
         return new ResponseEntity<>(user.getId(), HttpStatus.OK);
     }

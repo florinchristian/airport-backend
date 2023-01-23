@@ -22,7 +22,12 @@ public interface FlightRepository extends JpaRepository<Flight, Integer> {
                     and
                         start_time >= ?3
                     and
-                        start_time < date_add(?3, interval 1 day);
+                        start_time < date_add(?3, interval 1 day)
+                    and
+                        price between ?5 and ?6;
             """, nativeQuery = true)
-    List<Flight> getAvailableFlights(Integer fromAirport, Integer toAirport, String date, Integer numberOfSeats);
+    List<Flight> getAvailableFlights(Integer fromAirport, Integer toAirport, String date, Integer numberOfSeats, Integer priceFrom, Integer priceTo);
+
+    @Query(value = "select * from flights where start_time >= ?1 and start_time < date_add(?1, interval 1 day)", nativeQuery = true)
+    List<Flight> getFlightsByDay(String day);
 }

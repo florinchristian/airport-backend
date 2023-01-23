@@ -56,4 +56,8 @@ public class Flight {
             orphanRemoval = true
     )
     private List<Ticket> tickets;
+
+    public Flight(Integer id) {
+        this.id = id;
+    }
 }

@@ -39,6 +39,10 @@ public class User {
     )
     private Set<Role> roles;
 
+    public User(Integer id) {
+        this.id = id;
+    }
+
     public User(String email, String hashedPassword) {
         this.email = email;
         this.hashedPassword = hashedPassword;

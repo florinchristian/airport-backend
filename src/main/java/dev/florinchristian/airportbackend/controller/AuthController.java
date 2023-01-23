@@ -40,7 +40,7 @@ public class AuthController {
         if (!user.getHashedPassword().equals(Auth.getMD5Hash(password)))
             throw new WrongCredentialsException();
 
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        return new ResponseEntity<>(user.getId(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST)

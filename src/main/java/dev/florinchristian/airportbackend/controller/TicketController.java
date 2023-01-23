@@ -1,11 +1,17 @@
 package dev.florinchristian.airportbackend.controller;
 
+import dev.florinchristian.airportbackend.model.Flight;
 import dev.florinchristian.airportbackend.model.Ticket;
+import dev.florinchristian.airportbackend.model.TicketRequest;
+import dev.florinchristian.airportbackend.model.User;
 import dev.florinchristian.airportbackend.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
